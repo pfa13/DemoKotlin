@@ -1,20 +1,18 @@
 package com.example.paula.demokotlin
 
 import android.content.Intent
-import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
-import android.support.annotation.RequiresApi
 import android.util.Log
 import android.view.WindowManager
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_conversacion.*
 import java.util.*
 
-class MainActivity : AppCompatActivity(), RecognitionListener {
+class Conversacion : AppCompatActivity(), RecognitionListener {
 
     var toSpeech: TextToSpeech? = null
     var result: Int? = null
@@ -23,11 +21,9 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
     lateinit var intentReco: Intent
     var LOG_TAG: String = "VoiceRecognitionActivity"
 
-
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_conversacion)
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -35,9 +31,8 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
         super.onStart()
         toSpeech = TextToSpeech(this, TextToSpeech.OnInitListener {
             result = toSpeech?.setLanguage(Locale("es", "ES"))
-            text = "Bienvenido. ¿Qué quieres hacer?. ¿Leer?. ¿Enviar?"
-            toSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null)
-
+            text = "¡Hola!. ¿Qué vas a hacer hoy?. ¿Quiéres responder?"
+            toSpeech?.speak(text, TextToSpeech.QUEUE_ADD, null)
             speech = SpeechRecognizer.createSpeechRecognizer(this)
             speech.setRecognitionListener(this)
             intentReco = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -48,7 +43,7 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
             Thread.sleep(6000)
             while(true) {
                 if (!toSpeech!!.isSpeaking) {
-                    Log.i(LOG_TAG, "he terminado de hablar")
+                    Log.i(LOG_TAG, "finish")
                     toSpeech?.stop()
                     toSpeech?.shutdown()
                     break
@@ -58,12 +53,28 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
         })
     }
 
-    override fun onBeginningOfSpeech() {
-        Log.i(LOG_TAG, "onBeginningOfSpeech")
+    override fun onReadyForSpeech(p0: Bundle?) {
+        Log.i(LOG_TAG, "onReadyForSpeech")
+    }
+
+    override fun onRmsChanged(p0: Float) {
+        Log.i(LOG_TAG, "onRmsChanged" + p0)
     }
 
     override fun onBufferReceived(p0: ByteArray?) {
         Log.i(LOG_TAG, "onBufferReceived")
+    }
+
+    override fun onPartialResults(p0: Bundle?) {
+        Log.i(LOG_TAG, "onPartialResults")
+    }
+
+    override fun onEvent(p0: Int, p1: Bundle?) {
+        Log.i(LOG_TAG, "onEvent")
+    }
+
+    override fun onBeginningOfSpeech() {
+        Log.i(LOG_TAG, "onBeginningOfSpeech")
     }
 
     override fun onEndOfSpeech() {
@@ -75,40 +86,29 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
         var errorMensaje: String = getErrorText(p0)
     }
 
-    override fun onEvent(p0: Int, p1: Bundle?) {
-        Log.i(LOG_TAG, "onEvent")
-    }
-
     override fun onResults(p0: Bundle?) {
         Log.i(LOG_TAG, "onResults")
         var matches: ArrayList<String> = p0!!.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        var text: String = ""
+        var text: String = "Has enviado: "
         for (result in matches) {
-            Log.i(LOG_TAG, result)
-            text += result + "\n"
-            if (result.contentEquals("leer") || result.contentEquals("Leer") || result.contentEquals("LEER")) {
-                Log.i(LOG_TAG, "Abro activity leer")
-                val intent: Intent = Intent(this, Leer::class.java)
-                startActivity(intent)
+            if (result.contentEquals("sí") || result.contentEquals("si") || result.contentEquals("Si") || result.contentEquals("SI")) {
+                Log.i(LOG_TAG, "he dicho si")
+                speech = SpeechRecognizer.createSpeechRecognizer(this)
+                speech.setRecognitionListener(this)
+                intentReco = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                intentReco.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "es")
+                intentReco.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.packageName)
+                intentReco.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+                intentReco.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+                speech.startListening(intentReco)
                 break
             } else {
-                textView.text = "No has dicho leer"
-                Log.i(LOG_TAG, "No has dicho leer")
+                text += result
                 break
             }
         }
-    }
 
-    override fun onPartialResults(p0: Bundle?) {
-        Log.i(LOG_TAG, "onPartialResults")
-    }
-
-    override fun onRmsChanged(p0: Float) {
-        Log.i(LOG_TAG, "onRmsChanged" + p0)
-    }
-
-    override fun onReadyForSpeech(p0: Bundle?) {
-        Log.i(LOG_TAG, "onReadyForSpeech")
+        textView3.text = text
     }
 
     fun getErrorText(errorCode: Int): String {
@@ -138,29 +138,13 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
         return message
     }
 
-    /*fun TTS(view: View) {
-        when (view.id) {
-            R.id.button ->
-                if(result === TextToSpeech.LANG_MISSING_DATA || result === TextToSpeech.LANG_NOT_SUPPORTED)
-                    Toast.makeText(applicationContext, "Feature not supported", Toast.LENGTH_SHORT).show()
-                else {
-                    var texto = findViewById<EditText>(R.id.editText)
-                    text = "Hello world"
-                    toSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null)
-                }
-            R.id.button2 ->
-                if (toSpeech === null)
-                    toSpeech?.stop()
-
-        }
-    }*/
-
     override fun onDestroy() {
         super.onDestroy()
         if(toSpeech !== null) {
-            Log.i(LOG_TAG, "he destruido")
+            Log.i(LOG_TAG, "me destruyo")
             toSpeech?.stop()
             toSpeech?.shutdown()
         }
     }
 }
+
