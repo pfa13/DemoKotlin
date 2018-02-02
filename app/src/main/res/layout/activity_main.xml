@@ -1,22 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.paula.demokotlin.MainActivity">
+    tools:context="com.example.paula.demokotlin.MainActivity"
+    android:background="@drawable/basefinal_3">
 
-    <TextView
-        android:id="@+id/textView"
+    <ImageButton
+        android:id="@+id/Enviar"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        tools:text="Menú principal" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="58dp"
+        android:layout_toLeftOf="@+id/Leer"
+        android:layout_toStartOf="@+id/Leer"
+        android:background="@android:color/black"
+        app:srcCompat="@drawable/botonfin1" />
 
-</android.support.constraint.ConstraintLayout>
+    <ImageButton
+        android:id="@+id/Leer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/Enviar"
+        android:layout_marginEnd="115dp"
+        android:layout_marginRight="115dp"
+        android:layout_marginTop="62dp"
+        android:background="@android:color/black"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/botonfin2" />
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Leer"
+        android:layout_alignStart="@+id/Leer"
+        android:layout_below="@+id/Leer"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="42dp"
+        android:background="@android:color/black"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/botonfin3" />
+
+    <ImageButton
+        android:id="@+id/imageButton4"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignLeft="@+id/Enviar"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/Enviar"
+        android:layout_marginBottom="94dp"
+        android:background="@android:color/black"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/botonfin4" />
+</RelativeLayout>

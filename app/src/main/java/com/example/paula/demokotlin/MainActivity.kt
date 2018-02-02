@@ -10,7 +10,10 @@ import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.support.annotation.RequiresApi
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.WindowManager
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -161,6 +164,92 @@ class MainActivity : AppCompatActivity(), RecognitionListener {
             Log.i(LOG_TAG, "he destruido")
             toSpeech?.stop()
             toSpeech?.shutdown()
+        }
+    }
+
+    internal inner class MyGestureListener : GestureDetector.SimpleOnGestureListener() {
+
+        private val _swipeThresold = 100
+        private val _swipeVelocityThresold = 100
+
+        override fun onDown(e: MotionEvent): Boolean {
+            return true
+        }
+
+        override fun onFling(event1: MotionEvent, event2: MotionEvent,
+                             velocityX: Float, velocityY: Float): Boolean {
+
+            var result = false
+            try {
+                val diffY = event2.y - event1.y
+                val diffX = event2.x - event1.x
+
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > _swipeThresold && Math.abs(velocityX) > _swipeVelocityThresold) {
+                        if (diffX > 0) {
+                            onSwipeRight()
+                        } else {
+                            onSwipeLeft()
+                        }
+                    }
+                } else if (Math.abs(diffY) > _swipeThresold && Math.abs(velocityY) > _swipeVelocityThresold) {
+                    if (diffY > 0) {
+                        onSwipeBottom()
+                    } else {
+                        onSwipeTop()
+                    }
+                }
+                result = true
+
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+            }
+
+            return result
+        }
+
+        private fun onSwipeRight() {
+            Toast.makeText(baseContext,
+                    "Swipe right - startActivity()",
+                    Toast.LENGTH_SHORT).show()
+
+            //switch another activity
+            val intent = Intent(
+                    this@MainActivity, Conversacion::class.java)
+            startActivity(intent)
+        }
+
+        private fun onSwipeLeft() {
+            Toast.makeText(baseContext,
+                    "Swipe left - startActivity()",
+                    Toast.LENGTH_SHORT).show()
+
+            //switch another activity
+            val intent = Intent(
+                    this@MainActivity, Leer::class.java)
+            startActivity(intent)
+        }
+
+        private fun onSwipeTop() {
+            Toast.makeText(baseContext,
+                    "Swipe up - startActivity()",
+                    Toast.LENGTH_SHORT).show()
+
+            //switch another activity
+            val intent = Intent(
+                    this@MainActivity, Leer::class.java)
+            startActivity(intent)
+        }
+
+        private fun onSwipeBottom() {
+            Toast.makeText(baseContext,
+                    "Swipe down - startActivity()",
+                    Toast.LENGTH_SHORT).show()
+
+            //switch another activity
+            val intent = Intent(
+                    this@MainActivity, Leer::class.java)
+            startActivity(intent)
         }
     }
 }

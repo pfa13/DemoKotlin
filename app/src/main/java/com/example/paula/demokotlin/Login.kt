@@ -8,11 +8,15 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import android.view.WindowManager
-import kotlinx.android.synthetic.main.activity_conversacion.*
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+import android.os.AsyncTask.execute
+import android.icu.util.ULocale.getCountry
+import org.json.JSONObject
+import java.io.InputStream
 
-class Conversacion : AppCompatActivity(), RecognitionListener {
+
+class Login : AppCompatActivity(), RecognitionListener {
 
     var toSpeech: TextToSpeech? = null
     var result: Int? = null
@@ -20,19 +24,20 @@ class Conversacion : AppCompatActivity(), RecognitionListener {
     lateinit var speech: SpeechRecognizer
     lateinit var intentReco: Intent
     var LOG_TAG: String = "VoiceRecognitionActivity"
+    var url: String = "http://localhost:53194"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_conversacion)
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.activity_login)
     }
 
     override fun onStart() {
         super.onStart()
         toSpeech = TextToSpeech(this, TextToSpeech.OnInitListener {
             result = toSpeech?.setLanguage(Locale("es", "ES"))
-            text = "¡Hola!. ¿Qué vas a hacer hoy?. ¿Quiéres responder?"
-            toSpeech?.speak(text, TextToSpeech.QUEUE_ADD, null)
+            text = "Bienvenido a Diceregram. ¿Cuál es tu número de teléfono?"
+            toSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null)
+
             speech = SpeechRecognizer.createSpeechRecognizer(this)
             speech.setRecognitionListener(this)
             intentReco = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -43,7 +48,7 @@ class Conversacion : AppCompatActivity(), RecognitionListener {
             Thread.sleep(6000)
             while(true) {
                 if (!toSpeech!!.isSpeaking) {
-                    Log.i(LOG_TAG, "finish")
+                    Log.i(LOG_TAG, "he terminado de hablar")
                     toSpeech?.stop()
                     toSpeech?.shutdown()
                     break
@@ -53,28 +58,12 @@ class Conversacion : AppCompatActivity(), RecognitionListener {
         })
     }
 
-    override fun onReadyForSpeech(p0: Bundle?) {
-        Log.i(LOG_TAG, "onReadyForSpeech")
-    }
-
-    override fun onRmsChanged(p0: Float) {
-        Log.i(LOG_TAG, "onRmsChanged" + p0)
+    override fun onBeginningOfSpeech() {
+        Log.i(LOG_TAG, "onBeginningOfSpeech")
     }
 
     override fun onBufferReceived(p0: ByteArray?) {
         Log.i(LOG_TAG, "onBufferReceived")
-    }
-
-    override fun onPartialResults(p0: Bundle?) {
-        Log.i(LOG_TAG, "onPartialResults")
-    }
-
-    override fun onEvent(p0: Int, p1: Bundle?) {
-        Log.i(LOG_TAG, "onEvent")
-    }
-
-    override fun onBeginningOfSpeech() {
-        Log.i(LOG_TAG, "onBeginningOfSpeech")
     }
 
     override fun onEndOfSpeech() {
@@ -86,29 +75,61 @@ class Conversacion : AppCompatActivity(), RecognitionListener {
         var errorMensaje: String = getErrorText(p0)
     }
 
+    override fun onEvent(p0: Int, p1: Bundle?) {
+        Log.i(LOG_TAG, "onEvent")
+    }
+
     override fun onResults(p0: Bundle?) {
         Log.i(LOG_TAG, "onResults")
         var matches: ArrayList<String> = p0!!.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-        var text: String = "Has enviado: "
+        var text: String = ""
         for (result in matches) {
-            if (result.contentEquals("sí") || result.contentEquals("si") || result.contentEquals("Si") || result.contentEquals("SI")) {
-                Log.i(LOG_TAG, "he dicho si")
-                speech = SpeechRecognizer.createSpeechRecognizer(this)
-                speech.setRecognitionListener(this)
-                intentReco = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                intentReco.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "es")
-                intentReco.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.packageName)
-                intentReco.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
-                intentReco.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
-                speech.startListening(intentReco)
+            Log.i(LOG_TAG, result)
+
+            if (!result.isNullOrEmpty()) {
+                result.replace("nueve", "9")
+                result.replace("ocho", "8")
+                result.replace("siete", "7")
+                result.replace("seis", "6")
+                result.replace("cinco", "5")
+                result.replace("cuatro", "4")
+                result.replace("tres", "3")
+                result.replace("dos", "2")
+                result.replace("uno", "1")
+                result.replace("cero", "0")
+                text = "34" + result
+                if(text.length == 11) {
+                    POSTlogin(url, text)
+
+                } else {
+
+                }
+
                 break
             } else {
-                text += result
+                textView.text = "No has dicho nada"
+                Log.i(LOG_TAG, "No has dicho nada")
                 break
             }
         }
+    }
 
-        textView3.text = text
+    fun POSTlogin(url: String, phone: String): String {
+
+        return "hola"
+
+    }
+
+    override fun onPartialResults(p0: Bundle?) {
+        Log.i(LOG_TAG, "onPartialResults")
+    }
+
+    override fun onRmsChanged(p0: Float) {
+        Log.i(LOG_TAG, "onRmsChanged" + p0)
+    }
+
+    override fun onReadyForSpeech(p0: Bundle?) {
+        Log.i(LOG_TAG, "onReadyForSpeech")
     }
 
     fun getErrorText(errorCode: Int): String {
@@ -137,14 +158,4 @@ class Conversacion : AppCompatActivity(), RecognitionListener {
         }
         return message
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if(toSpeech !== null) {
-            Log.i(LOG_TAG, "me destruyo")
-            toSpeech?.stop()
-            toSpeech?.shutdown()
-        }
-    }
 }
-

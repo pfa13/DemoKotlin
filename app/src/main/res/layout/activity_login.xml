@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.paula.demokotlin.Login"
+    android:background="@drawable/base_login">
+
+    <EditText
+        android:id="@+id/Telephone"
+        android:layout_width="230dp"
+        android:layout_height="35dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="262dp"
+        android:layout_marginLeft="88dp"
+        android:layout_marginStart="88dp"
+        android:background="#ffffff"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="phone" />
+
+    <EditText
+        android:id="@+id/Code"
+        android:layout_width="230dp"
+        android:layout_height="35dp"
+        android:layout_alignLeft="@+id/Telephone"
+        android:layout_alignStart="@+id/Telephone"
+        android:layout_alignTop="@+id/Telephone"
+        android:layout_marginTop="84dp"
+        android:background="#ffffff"
+        android:ems="10"
+        android:inputType="numberPassword"
+        android:singleLine="true" />
+</RelativeLayout>
